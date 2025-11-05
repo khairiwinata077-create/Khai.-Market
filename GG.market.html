@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GG.market - Selalu GG Barangnya</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo { font-size: 28px; font-weight: bold; display: flex; align-items: center; gap: 10px; }
+        .cart-button {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid white;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            position: relative;
+            transition: all 0.3s;
+        }
+        .cart-button:hover { background: white; color: #667eea; }
+        .cart-count {
+            position: absolute; top: -8px; right: -8px;
+            background: #ff4757; color: white;
+            border-radius: 50%; width: 24px; height: 24px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: bold;
+        }
+        .search-filter { padding: 30px; background: #black; }
+        .search-box {
+            width: 100%; padding: 15px 20px;
+            border: 2px solid #667eea; border-radius: 30px;
+            font-size: 16px; margin-bottom: 20px;
+        }
+        .categories { display: flex; gap: 10px; flex-wrap: wrap; }
+        .category-btn {
+            padding: 10px 20px; border: 2px solid #667eea;
+            background: white; color: #667eea;
+            border-radius: 20px; cursor: pointer;
+            font-size: 14px; font-weight: 600;
+        }
+        .category-btn:hover, .category-btn.active { background: #667eea; color: white; }
+        .products-section { padding: 30px; }
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
+        .product-card {
+            background: white; border-radius: 15px; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: all 0.3s;
+        }
+        .product-card:hover { transform: translateY(-8px); border-color: #667eea; }
+        .product-image { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); height: 200px; display: flex; align-items: center; justify-content: center; font-size: 80px; }
+        .product-info { padding: 20px; }
+        .product-category {
+            display: inline-block; background: #667eea; color: white;
+            padding: 5px 12px; border-radius: 12px; font-size: 12px;
+            font-weight: bold; margin-bottom: 10px;
+        }
+        .product-name { font-size: 18px; font-weight: bold; margin-bottom: 8px; }
+        .product-price { font-size: 24px; font-weight: bold; color: #667eea; margin-bottom: 8px; }
+        .product-stock { color: #636e72; font-size: 14px; margin-bottom: 15px; }
+        .add-to-cart-btn {
+            width: 100%; padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; border: none; border-radius: 10px;
+            font-size: 16px; font-weight: bold; cursor: pointer;
+        }
+        .cart-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; }
+        .cart-modal.active { display: flex; align-items: center; justify-content: center; }
+        .cart-content {
+            background: white; border-radius: 20px; padding: 30px;
+            max-width: 600px; width: 90%; max-height: 80vh;
+            overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .cart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .close-cart {
+            background: #ff4757; color: white; border: none;
+            padding: 8px 16px; border-radius: 8px; cursor: pointer;
+        }
+        .cart-items { margin-bottom: 20px; }
+        .cart-item { display: flex; align-items: center; gap: 15px; padding: 15px; background: #f8f9fa; border-radius: 10px; margin-bottom: 10px; }
+        .cart-item-controls { display: flex; align-items: center; gap: 10px; }
+        .qty-btn { background: #667eea; color: white; border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; }
+        .remove-btn { background: #ff4757; color: white; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; }
+        .checkout-btn {
+            width: 100%; padding: 15px;
+            background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
+            color: white; border: none; border-radius: 10px;
+            font-size: 18px; font-weight: bold; cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">🛒 Khai. Market</div>
+            <button class="cart-button" onclick="toggleCart()">🛍️ Keranjang <span class="cart-count" id="cartCount">0</span></button>
+        </header>
+
+        <div class="search-filter">
+            <input type="text" class="search-box" id="searchBox" placeholder="🔍 Mau cari apa ganteng..." onkeyup="filterProducts()">
+            <div class="categories">
+                <button class="category-btn active" onclick="filterByCategory('Semua')">Semua</button>
+                <button class="category-btn" onclick="filterByCategory('Elektronik')">Elektronik</button>
+                <button class="category-btn" onclick="filterByCategory('Fashion')">Fashion</button>
+                <button class="category-btn" onclick="filterByCategory('Rumah Tangga')">Rumah Tangga</button>
+            </div>
+        </div>
+
+        <div class="products-section">
+            <div class="products-grid" id="productsGrid"></div>
+        </div>
+    </div>
+
+    <!-- Cart Modal -->
+    <div class="cart-modal" id="cartModal">
+        <div class="cart-content">
+            <div class="cart-header">
+                <h2>Keranjang Belanja</h2>
+                <button class="close-cart" onclick="toggleCart()">Tutup</button>
+            </div>
+            <div class="cart-items" id="cartItems"></div>
+            <div class="cart-total" id="cartTotal"></div>
+        </div>
+    </div>
+
+    <script>
+        const products = [
+            { id: 1, name: 'ROG Laptop', price: 15000000, image: '💻', category: 'Elektronik', stock: 10 },
+            { id: 2, name: 'Smartphone Android', price: 5000000, image: '📱', category: 'Elektronik', stock: 15 },
+            { id: 3, name: 'Headphone Bluetooth', price: 800000, image: '🎧', category: 'Elektronik', stock: 20 },
+            { id: 4, name: 'Sepatu Sneakers', price: 1200000, image: '👟', category: 'Fashion', stock: 25 },
+            { id: 5, name: 'Tas Ransel Premium', price: 450000, image: '🎒', category: 'Fashion', stock: 30 },
+            { id: 6, name: 'Jam Tangan Smart', price: 2500000, image: '⌚', category: 'Fashion', stock: 12 },
+            { id: 7, name: 'Blender', price: 600000, image: '🔌', category: 'Rumah Tangga', stock: 22 }
+        ];
+
+        let cart = [];
+        let currentCategory = 'Semua';
+
+        function formatRupiah(number) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
+        }
+
+        function renderProducts(productsToShow) {
+            const grid = document.getElementById('productsGrid');
+            if (productsToShow.length === 0) {
+                grid.innerHTML = '<p style="text-align:center;color:#636e72;padding:40px;">Tidak ada produk ditemukan</p>';
+                return;
+            }
+            grid.innerHTML = productsToShow.map(product => `
+                <div class="product-card">
+                    <div class="product-image">${product.image}</div>
+                    <div class="product-info">
+                        <span class="product-category">${product.category}</span>
+                        <div class="product-name">${product.name}</div>
+                        <div class="product-price">${formatRupiah(product.price)}</div>
+                        <div class="product-stock">Stok: ${product.stock}</div>
+                        <button class="add-to-cart-btn" onclick="addToCart(${product.id})">Tambah ke Keranjang</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function addToCart(id) {
+            const product = products.find(p => p.id === id);
+            const cartItem = cart.find(item => item.id === id);
+            if (cartItem) cartItem.quantity++;
+            else cart.push({ ...product, quantity: 1 });
+            updateCartUI();
+        }
+
+        function updateQuantity(id, change) {
+            const item = cart.find(i => i.id === id);
+            if (!item) return;
+            item.quantity += change;
+            if (item.quantity <= 0) cart = cart.filter(i => i.id !== id);
+            updateCartUI();
+        }
+
+        function removeFromCart(id) {
+            cart = cart.filter(i => i.id !== id);
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const count = document.getElementById('cartCount');
+            const items = document.getElementById('cartItems');
+            const total = document.getElementById('cartTotal');
+            const totalItems = cart.reduce((a,b) => a + b.quantity, 0);
+            const totalPrice = cart.reduce((a,b) => a + b.price * b.quantity, 0);
+            count.textContent = totalItems;
+            if (cart.length === 0) {
+                items.innerHTML = '<p style="text-align:center;">Keranjang kosong</p>';
+                total.innerHTML = '';
+                return;
+            }
+            items.innerHTML = cart.map(i => `
+                <div class="cart-item">
+                    <div style="font-size:40px;">${i.image}</div>
+                    <div style="flex:1;">
+                        <div><b>${i.name}</b></div>
+                        <div>${formatRupiah(i.price)}</div>
+                    </div>
+                    <div class="cart-item-controls">
+                        <button class="qty-btn" onclick="updateQuantity(${i.id}, -1)">-</button>
+                        <span>${i.quantity}</span>
+                        <button class="qty-btn" onclick="updateQuantity(${i.id}, 1)">+</button>
+                        <button class="remove-btn" onclick="removeFromCart(${i.id})">🗑️</button>
+                    </div>
+                </div>
+            `).join('');
+            total.innerHTML = `
+                <div style="display:flex;justify-content:space-between;font-weight:bold;">
+                    <span>Total:</span><span>${formatRupiah(totalPrice)}</span>
+                </div>
+                <button class="checkout-btn" onclick="checkout()">💳 Checkout Sekarang</button>
+            `;
+        }
+
+        function toggleCart() {
+            document.getElementById('cartModal').classList.toggle('active');
+        }
+
+        function checkout() {
+            if (cart.length === 0) return alert('Keranjang kosong!');
+            const nama = prompt("Masukkan nama lengkap:");
+            if (!nama) return alert('Nama wajib diisi!');
+            const alamat = prompt("Masukkan alamat lengkap:");
+            if (!alamat) return alert('Alamat wajib diisi!');
+            const telepon = prompt("Masukkan nomor telepon:");
+            if (!telepon) return alert('Nomor telepon wajib diisi!');
+            const totalPrice = cart.reduce((a,b) => a + b.price * b.quantity, 0);
+            alert(`🎉 Checkout Berhasil!\n\nNama: ${nama}\nAlamat: ${alamat}\nTelepon: ${telepon}\nTotal: ${formatRupiah(totalPrice)}\n\nTerima kasih ya ganteng`);
+            cart = [];
+            updateCartUI();
+            toggleCart();
+        }
+
+        function filterByCategory(category) {
+            currentCategory = category;
+            document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            filterProducts();
+        }
+
+        function filterProducts() {
+            const search = document.getElementById('searchBox').value.toLowerCase();
+            let filtered = products;
+            if (currentCategory !== 'Semua') filtered = filtered.filter(p => p.category === currentCategory);
+            if (search) filtered = filtered.filter(p => p.name.toLowerCase().includes(search));
+            renderProducts(filtered);
+        }
+
+        renderProducts(products);
+        updateCartUI();
+    </script>
+</body>
+</html>
